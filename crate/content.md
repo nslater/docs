@@ -23,23 +23,23 @@ The smallest CrateDB clusters can easily ingest tens of thousands of records per
 second. And this data can be queried, ad-hoc, in parallel across the whole
 cluster in real time.
 
-# Quick Start Example: Multihost Production Setup
+# Quick Start Example
 
-This is an example configuration to run in a multi-host production environment.
-The configuration includes the required minimum settings:
+If you want to jump right in, here's a quick start example that could be used to
+run CrateDB in a multi-host production environment.
 
--	Volume mapping
--	Port mapping to localhost (run only one container per machine)
--	Unicast host discovery
+This configuration includes:
 
-To start the Crate cluster in containers distributed to three hosts without
-multicast enabled, run this command on the first node and adapt the container
-and node names on the two other nodes:
+- Volume mapping
+- Port mapping to localhost (requires one container per host)
+- Unicast host discovery
 
-```console
-# HOSTS="crate1.example.com:4300,crate2.example.com:4300,crate3.example.com:4300"
-# HOST="crate1.example.com"
-# docker run -d -p 4200:4200 -p 4300:4300 \
+On the first host, run something like this:
+
+```
+$ HOSTS="node1.example.com:4300,node2.example.com:4300,node3.example.com:4300"
+$ HOST="node1.example.com"
+$ docker run -d -p 4200:4200 -p 4300:4300 \
     --name crate1-container \
     --volume /mnt/data:/data \
     --ulimit nofile=65535 \
@@ -54,6 +54,8 @@ and node names on the two other nodes:
           -Cdiscovery.zen.ping.unicast.hosts="$HOSTS" \
           -Cdiscovery.zen.minimum_master_nodes=2
 ```
+
+On each additional host, modify the `HOST` variable, and run the same command.
 
 # The crate Docker Image
 
