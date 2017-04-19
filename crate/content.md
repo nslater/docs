@@ -57,19 +57,21 @@ $ docker run -d -p 4200:4200 -p 4300:4300 \
 
 On each additional host, modify the `HOST` variable, and run the same command.
 
-# The crate Docker Image
+# Docker Guide
 
-To form a cluster from scratch, start a few instances of the Crate container as
-a background daemon:
+## Form a Cluster
 
-```console
+To form a cluster from scratch, start a few instances of the CrateDB container
+as a background daemon:
+
+```
 # docker run -d crate crate
 ```
 
-To access the admin UI, map port 4200 and point your browser to port tcp/4200 of
+To access the admin UI, map port 4200, and point your browser to port 4200 of
 a node of your choice while you start it or look up its IP later:
 
-```console
+```
 # firefox "http://$(docker inspect --format='{{.NetworkSettings.IPAddress}}' $(docker run -d crate crate)):4200/admin"
 ```
 
@@ -78,7 +80,7 @@ machine. This will give the best possible performance and by mapping the ports
 from the Docker container to the host it acts like a native installation.
 Crate's default ports 4200 (HTTP) and 4300 (Transport protocol).
 
-```console
+```
 # docker run -d -p 4200:4200 -p 4300:4300 crate crate
 ```
 
