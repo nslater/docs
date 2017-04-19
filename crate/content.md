@@ -65,14 +65,14 @@ To form a cluster from scratch, start a few instances of the CrateDB container
 as a background daemon:
 
 ```
-# docker run -d crate crate
+$ docker run -d crate crate
 ```
 
 To access the admin UI, map port 4200, and point your browser to port 4200 of
 a node of your choice while you start it or look up its IP later:
 
 ```
-# firefox "http://$(docker inspect --format='{{.NetworkSettings.IPAddress}}' $(docker run -d crate crate)):4200/admin"
+$ firefox "http://$(docker inspect --format='{{.NetworkSettings.IPAddress}}' $(docker run -d crate crate)):4200/admin"
 ```
 
 For production use it's strongly recommended to use only one container per
@@ -81,7 +81,7 @@ from the Docker container to the host it acts like a native installation.
 Crate's default ports 4200 (HTTP) and 4300 (Transport protocol).
 
 ```
-# docker run -d -p 4200:4200 -p 4300:4300 crate crate
+$ docker run -d -p 4200:4200 -p 4300:4300 crate crate
 ```
 
 ## Attach Persistent Data Directory
@@ -89,8 +89,8 @@ Crate's default ports 4200 (HTTP) and 4300 (Transport protocol).
 Crate stores all important data in */data*. It's advised to mount this directory
 to avoid writing within the docker image:
 
-```console
-# docker run -d -v <data-dir>:/data crate crate
+```
+$ docker run -d -v <data-dir>:/data crate crate
 ```
 
 ## Use Custom Crate Configuration
@@ -99,15 +99,20 @@ Starting with 0.55.0, Crate does no longer support providing custom
 configuration files. However it is still possible to mount Crate's configuration
 into `/crate/config/crate.yml`.
 
-```console
-# docker run -d -v <custom/config/path>/crate.yml:/crate/config/crate.yml crate crate
+```
+$ docker run -d -v <custom/config/path>/crate.yml:/crate/config/crate.yml crate crate
 ```
 
 For further configuration options refer to the
 [Configuration](https://crate.io/docs/stable/configuration.html) section of our
 documentation.
 
-## Environment
+## Environment and Runtime Constraints
+
+It's very important that you set explicit runtime constraints because otherwise
+the JVM can get confused when it is running inside Docker.
+
+@@ todo how to calculate memory size for crate
 
 Crate recognizes environment variables like `CRATE_HEAP_SIZE` that need to be
 set with the `--env` option before the actual Crate core starts. As a rule of
@@ -115,9 +120,20 @@ thumb you may want to [assign about half of your
 memory](https://crate.io/docs/reference/en/latest/configuration.html#crate-heap-size)
 to Crate:
 
-```console
-# docker run -d --env CRATE_HEAP_SIZE=32g crate crate
 ```
+$ docker run -d --env CRATE_HEAP_SIZE=32g crate crate
+```
+
+new:
+
+```
+$ docker run -d -m 800M --env \
+    JAVA_OPTIONS='-Xmx32g' \
+    CRATE_HEAP_SIZE=32g \
+    crate crate
+```
+
+https://developers.redhat.com/blog/2017/03/14/java-inside-docker/
 
 ## Open Files
 
@@ -145,8 +161,8 @@ running on, this is the case if you do port mapping to the host via the `-p`
 option, you need to tell Crate to publish the address of the docker host
 instead:
 
-```console
-# docker run -d -p 4200:4200 -p 4300:4300 \
+```
+$ docker run -d -p 4200:4200 -p 4300:4300 \
     crate crate -Cnetwork.publish_host=host1.example.com
 ```
 
@@ -159,6 +175,6 @@ to your command.
 The Crate Shell `crash` is bundled with the Docker image. Since the `crash`
 executable is already in the `$PATH` environment variable, simply run:
 
-```console
-# docker run --rm -ti crate crash --hosts [host1, host2, ...]
+```
+$ docker run --rm -ti crate crash --hosts [host1, host2, ...]
 ```
